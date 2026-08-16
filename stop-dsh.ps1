@@ -1,12 +1,12 @@
 ﻿# stop-dsh.ps1 - 可靠退出 DeepSeek Harness (DSH) Web 服务
 # 由 dsh-stopper.bat 调用；不要直接双击运行。
 # 退出策略（多重保障，不会出现“退不出”的情况）：
+#   0) 先关内存看门狗（防误触发崩溃自动重启）；
 #   1) 按启动器记录的 PID 精确终止；
 #   2) 按命令行匹配所有 dsh web 服务进程（无论怎么启动的都能退出）；
 #   3) 关闭 DSH 界面应用窗口（隔离 profile 的 Edge/Chrome --app 窗口）；
-#   4) 关闭内存看门狗进程；
-#   5) 顺带关闭遗留的 DSH 服务控制台窗口；
-#   6) 校验端口 3080 是否已释放。
+#   4) 顺带关闭遗留的 DSH 服务控制台窗口；
+#   5) 校验端口 3080 是否已释放。
 $ErrorActionPreference = 'Continue'
 
 $stateDir = Join-Path $env:USERPROFILE '.dsh\launcher'
@@ -27,6 +27,16 @@ function Show-Popup($text, $type) {
         $ws = New-Object -ComObject WScript.Shell
         $ws.Popup($text, 3, 'DeepSeek Harness', $type) | Out-Null
     } catch {}
+}
+
+# 0) 先关内存看门狗（防它在服务退出后误触发"崩溃自动重启"）
+$wdTargets = Get-CimInstance Win32_Process | Where-Object {
+    $_.CommandLine -and $_.CommandLine -match 'watchdog-dsh\.ps1'
+} | ForEach-Object { $_.ProcessId } | Sort-Object -Unique
+foreach ($t in $wdTargets) {
+    if ($t -eq $PID) { continue }   # 安全护栏：不杀自己
+    taskkill /PID $t /T /F 2>$null | Out-Null
+    $killed.Add([int]$t)
 }
 
 # 1) 按 PID 文件精确终止（由启动器启动的情况）
@@ -60,16 +70,6 @@ $appTargets = Get-CimInstance Win32_Process | Where-Object {
     )
 } | ForEach-Object { $_.ProcessId } | Sort-Object -Unique
 foreach ($t in $appTargets) {
-    taskkill /PID $t /T /F 2>$null | Out-Null
-    $killed.Add([int]$t)
-}
-
-# 3.5) 关闭内存看门狗（隐藏的 powershell 进程，避免遗留孤儿进程）
-$wdTargets = Get-CimInstance Win32_Process | Where-Object {
-    $_.CommandLine -and $_.CommandLine -match 'watchdog-dsh\.ps1'
-} | ForEach-Object { $_.ProcessId } | Sort-Object -Unique
-foreach ($t in $wdTargets) {
-    if ($t -eq $PID) { continue }   # 安全护栏：不杀自己
     taskkill /PID $t /T /F 2>$null | Out-Null
     $killed.Add([int]$t)
 }
