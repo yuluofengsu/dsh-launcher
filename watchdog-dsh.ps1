@@ -1,4 +1,4 @@
-# watchdog-dsh.ps1 - DSH 服务内存看门狗（由 launch-dsh.ps1 隐藏启动）
+﻿# watchdog-dsh.ps1 - DSH 服务内存看门狗（由 launch-dsh.ps1 隐藏启动）
 # 每隔 IntervalSeconds 采样服务进程 RSS：
 #   - 超过 WarnMB -> 记录提示日志；
 #   - 超过 KillMB 连续 3 次 -> 终止服务并清理 pidfile（防内存泄漏拖垮整机）；
