@@ -30,7 +30,7 @@ $files = @(
     'dsh-launcher.bat', 'dsh-stopper.bat', 'dsh-autostart.bat',
     'stop-dsh.vbs', 'launch-dsh.ps1', 'stop-dsh.ps1', 'check-dsh.ps1',
     'watchdog-dsh.ps1', 'autostart.ps1', 'waiting.html',
-    'install-harness.bat', 'README-launcher.txt', 'DeepSeekHarness-WhaleGirl.ico'
+    'install-harness.bat', 'DeepSeekHarness-WhaleGirl.ico'
 )
 $copied = 0
 foreach ($f in $files) {
@@ -42,7 +42,16 @@ foreach ($f in $files) {
         Write-Host ('警告: 源目录缺少文件 ' + $f)
     }
 }
-Write-Host ("已复制 $copied/$($files.Count) 个文件到: " + $Target)
+# 说明文档：README.md 或 README-launcher.txt 任一存在即复制
+foreach ($doc in @('README.md', 'README-launcher.txt')) {
+    $s = Join-Path $src $doc
+    if (Test-Path $s) {
+        Copy-Item $s (Join-Path $Target $doc) -Force
+        $copied++
+        break
+    }
+}
+Write-Host ("已复制 $copied 个文件到: " + $Target)
 
 # ---- 桌面快捷方式 ----
 if (-not $SkipShortcuts) {
