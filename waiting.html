@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>DeepSeek Harness</title>
+<style>
+  html,body{height:100%;margin:0;background:#0d1117;color:#e6edf3;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;align-items:center;justify-content:center}
+  .box{text-align:center}
+  .logo{font-size:28px;font-weight:600;letter-spacing:.5px;margin-bottom:18px}
+  .spinner{width:34px;height:34px;margin:0 auto 16px;border:3px solid rgba(255,255,255,.15);border-top-color:#4f8cff;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hint{font-size:13px;color:#8b949e}
+  .error{display:none;color:#f85149;font-size:13px}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">DeepSeek Harness</div>
+    <div class="spinner"></div>
+    <div class="hint" id="hint">正在启动服务，请稍候…</div>
+    <div class="error" id="error">启动似乎超时了。请查看用户目录 .dsh\launcher 下的 dsh-web.err.log 日志。</div>
+  </div>
+  <script>
+    (function () {
+      var probe = 'http://127.0.0.1:3080/favicon.svg';
+      var appUrl = 'http://127.0.0.1:3080/';
+      var start = Date.now();
+      var hint = document.getElementById('hint');
+      var error = document.getElementById('error');
+      var lastTick = 0;
+      var stopped = false;
+
+      function showError() {
+        if (stopped) return;
+        stopped = true;
+        hint.style.display = 'none';
+        error.style.display = 'block';
+      }
+      function updateHint() {
+        var el = Date.now() - start;
+        if (el > 120000) { showError(); return false; }
+        var sec = Math.floor(el / 1000);
+        if (sec > lastTick && sec % 5 === 0) {
+          lastTick = sec;
+          hint.textContent = '正在启动服务，请稍候…（已等待 ' + sec + ' 秒）';
+        }
+        return true;
+      }
+      function redirect() { if (stopped) return; location.replace(appUrl); }
+
+      // 通道 A：图片探测（所有浏览器都可用，保证生效）
+      var img = new Image();
+      img.onload = redirect;
+      img.onerror = function () {
+        if (updateHint()) setTimeout(function () { img.src = probe + '?t=' + Date.now(); }, 900);
+      };
+      img.src = probe + '?t=' + Date.now();
+
+      // 通道 B：fetch + AbortController（更快的轮询，浏览器放行时生效）
+      if (window.fetch) {
+        (function probeFetch() {
+          if (stopped) return;
+          var ctrl = new AbortController();
+          var t = setTimeout(function () { ctrl.abort(); }, 700);
+          fetch(probe + '?t=' + Date.now(), { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal })
+            .then(function () { clearTimeout(t); redirect(); })
+            .catch(function () {
+              clearTimeout(t);
+              if (updateHint()) setTimeout(probeFetch, 900);
+            });
+        })();
+      }
+    })();
+  </script>
+</body>
+</html>
