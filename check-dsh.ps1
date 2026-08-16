@@ -72,6 +72,14 @@ if (Test-Path $memLog) {
     Info ('日志 memory.log') ([string][math]::Round((Get-Item $memLog).Length / 1KB, 1) + ' KB')
     Get-Content $memLog -Tail 3 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ('      ' + $_) }
 }
+$restartLog = Join-Path $stateDir 'restart.log'
+if (Test-Path $restartLog) {
+    $rt = @(Get-Content $restartLog -ErrorAction SilentlyContinue | Where-Object { $_ -match 'RESTART' }).Count
+    if ($rt -gt 0) {
+        Info '自动重启记录 restart.log' ($rt + ' 次')
+        Get-Content $restartLog -Tail 3 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ('      ' + $_) }
+    }
+}
 
 foreach ($f in @('dsh-web.log', 'dsh-web.err.log', 'exit.log')) {
     $fp = Join-Path $stateDir $f
