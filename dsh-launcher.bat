@@ -26,6 +26,14 @@ if /i not "%~1"=="/autostart" goto chk
 exit /b %errorlevel%
 :chk
 
+rem ---- self-update mode (dsh-launcher.bat /update) ----
+if /i not "%~1"=="/update" goto chk
+"%PSEXE%" -NoProfile -ExecutionPolicy Bypass -File "%HERE%update-dsh.ps1"
+echo.
+pause
+exit /b %errorlevel%
+:chk
+
 rem ---- self-check mode (dsh-launcher.bat /check) ----
 if /i not "%~1"=="/check" goto main
 "%PSEXE%" -NoProfile -ExecutionPolicy Bypass -File "%HERE%check-dsh.ps1"
