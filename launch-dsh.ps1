@@ -1,4 +1,4 @@
-param(
+﻿param(
     [int]$TimeoutSeconds = 90
 )
 # 启动 DeepSeek Harness (DSH) Web 服务（隐藏窗口）并等待 HTTP 就绪。
