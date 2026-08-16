@@ -1,4 +1,4 @@
-# autostart.ps1 - 开关 DSH 开机自启（由 dsh-autostart.bat 调用，不要直接双击）
+﻿# autostart.ps1 - 开关 DSH 开机自启（由 dsh-autostart.bat 调用，不要直接双击）
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $startup = [Environment]::GetFolderPath('Startup')
