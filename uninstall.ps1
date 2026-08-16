@@ -1,4 +1,4 @@
-# uninstall.ps1 - 卸载 DeepSeek Harness 启动器（由 uninstall.bat 调用）
+﻿# uninstall.ps1 - 卸载 DeepSeek Harness 启动器（由 uninstall.bat 调用）
 # 删除桌面快捷方式与安装目录（仅当目录确属本插件时）。
 param(
     [string]$Target = '',
