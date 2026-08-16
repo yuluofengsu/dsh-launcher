@@ -43,16 +43,18 @@ try {
         if (-not (Get-Command node.exe -ErrorAction SilentlyContinue)) { throw 'Node.js 安装后仍不可用，请手动安装' }
     }
     Write-Host '[3/4] 安装插件...'
-    $installArgs = @('-Target', $Destination)
-    if ($DesktopDir) { $installArgs += @('-DesktopDir', $DesktopDir) }
-    if ($SkipShortcuts) { $installArgs += '-SkipShortcuts' }
-    & (Join-Path $src 'install.ps1') @installArgs
+    $installScript = Join-Path $src 'install.ps1'
+    if ($SkipShortcuts) {
+        & $installScript -Target $Destination -SkipShortcuts
+    } else {
+        & $installScript -Target $Destination -DesktopDir $DesktopDir
+    }
     if ($LASTEXITCODE -ne 0) { throw '插件安装失败' }
 
     Write-Host '[4/4] 完成'
     Write-Host ('  安装目录: ' + $Destination)
     Write-Host '  桌面快捷方式: 「DeepSeek Harness」启动 / 「退出 DeepSeek Harness」退出'
-    Write-Host '  自检: ' + (Join-Path $Destination 'dsh-launcher.bat') + ' /check'
+    Write-Host ('  自检: ' + (Join-Path $Destination 'dsh-launcher.bat') + ' /check')
     exit 0
 } finally {
     Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
