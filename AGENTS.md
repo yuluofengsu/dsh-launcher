@@ -1,0 +1,66 @@
+# AGENTS.md — 给 AI 代理 / 自动化脚本的安装说明
+
+本仓库是 **DeepSeek Harness（DSH）Web 界面的一键启动/退出插件**（Windows，纯 `bat` / `ps1` / `vbs` / `html`，无编译、无第三方运行时依赖，安装不需要管理员权限）。
+
+如果你是一个 AI 代理，被要求"安装这个仓库"，按下面的命令执行即可。**安装是幂等的**：重复运行安全，会覆盖安装目录并重建桌面快捷方式；卸载请明确征求用户同意后再做。
+
+## 快速安装（推荐）
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Target "$env:LOCALAPPDATA\DSHLauncher"
+```
+
+- 退出码：`0` = 成功；非 `0` = 失败（stderr 中有原因）。
+- 若输出提示缺少 Node.js / DSH，先执行依赖安装器（自动装，可能几分钟）：
+  ```powershell
+  .\install-harness.bat /nopause
+  ```
+  然后重跑上面的 install.ps1。
+- 也可以用一键在线安装（直接从本仓库拉取，无需先克隆）：
+  ```powershell
+  irm https://raw.githubusercontent.com/yuluofengsu/dsh-launcher/main/install-online.ps1 | iex
+  ```
+
+## 验证安装
+
+```powershell
+& "$env:LOCALAPPDATA\DSHLauncher\dsh-launcher.bat" /check
+```
+
+- 输出包含 `[OK]` 项与"自检结论：环境正常"且退出码 `0` = 安装正确。
+- 直接运行自检脚本也可：`powershell -NoProfile -ExecutionPolicy Bypass -File .\check-dsh.ps1`。
+
+## 启动 / 退出（给用户）
+
+- 启动：双击桌面「DeepSeek Harness」，或 `& "$env:LOCALAPPDATA\DSHLauncher\dsh-launcher.bat"`
+- 退出：双击桌面「退出 DeepSeek Harness」（静默，完成后弹反馈框），或 `wscript "$env:LOCALAPPDATA\DSHLauncher\stop-dsh.vbs"`
+
+## 卸载（仅在用户要求时）
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1 -Target "$env:LOCALAPPDATA\DSHLauncher"
+```
+或双击 `uninstall.bat`。
+
+## 文件一览
+
+| 文件 | 作用 |
+|---|---|
+| `dsh-launcher.bat` | 启动入口（`/autostart` 无头、`/check` 自检） |
+| `dsh-stopper.bat` / `stop-dsh.vbs` | 退出入口 |
+| `launch-dsh.ps1` | 隐藏启动服务 + 等就绪 + 拉起内存看门狗 |
+| `stop-dsh.ps1` | 可靠退出 + 反馈弹窗 + 日志 |
+| `watchdog-dsh.ps1` | 内存看门狗（防泄漏） |
+| `check-dsh.ps1` | 自检 |
+| `autostart.ps1` / `dsh-autostart.bat` | 开机自启开关 |
+| `waiting.html` | 启动过渡页 |
+| `install.ps1` / `install.bat` | 安装器（复制文件 + 建快捷方式） |
+| `install-online.ps1` | 在线一键安装（下载本仓库并安装） |
+| `install-harness.bat` | 依赖安装器（Node.js 20+ / DSH，`/nopause` 静默） |
+| `uninstall.ps1` / `uninstall.bat` | 卸载器 |
+
+## 注意事项
+
+- 不要修改仓库文件来"适配"安装；安装目录可由 `-Target` 任意指定。
+- 插件不写注册表、不创建 Windows 服务；运行时数据在 `%USERPROFILE%\.dsh\launcher\`。
+- 依赖的 DSH 服务监听 `127.0.0.1:3080`；界面窗口使用 Edge/Chrome `--app` 隔离配置（`%LOCALAPPDATA%\DeepSeekHarness\`）。
