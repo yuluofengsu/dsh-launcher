@@ -1,4 +1,4 @@
-# install.ps1 - DeepSeek Harness 启动器安装脚本（由 install.bat 调用）
+﻿# install.ps1 - DeepSeek Harness 启动器安装脚本（由 install.bat 调用）
 # 复制插件文件到目标目录并创建桌面快捷方式。
 # 用法: install.ps1 [-Target 安装目录] [-DesktopDir 桌面目录(测试用)] [-SkipShortcuts]
 param(
