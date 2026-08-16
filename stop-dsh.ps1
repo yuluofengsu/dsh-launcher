@@ -1,4 +1,4 @@
-# stop-dsh.ps1 - 可靠退出 DeepSeek Harness (DSH) Web 服务
+﻿# stop-dsh.ps1 - 可靠退出 DeepSeek Harness (DSH) Web 服务
 # 由 dsh-stopper.bat 调用；不要直接双击运行。
 # 退出策略（多重保障，不会出现“退不出”的情况）：
 #   1) 按启动器记录的 PID 精确终止；
