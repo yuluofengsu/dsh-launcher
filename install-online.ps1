@@ -1,4 +1,4 @@
-# install-online.ps1 - 在线一键安装 DeepSeek Harness 启动器（傻瓜式）
+﻿# install-online.ps1 - 在线一键安装 DeepSeek Harness 启动器（傻瓜式）
 # 直接从 GitHub 拉取仓库、自动补齐依赖（Node.js/DSH）、安装插件并创建桌面快捷方式。
 #
 # 用法一（一行命令，PowerShell 5.1+ / 7）:
