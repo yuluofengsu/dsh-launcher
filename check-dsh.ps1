@@ -1,4 +1,4 @@
-# check-dsh.ps1 - DeepSeek Harness 启动器自检（由 dsh-launcher.bat /check 调用）
+﻿# check-dsh.ps1 - DeepSeek Harness 启动器自检（由 dsh-launcher.bat /check 调用）
 $ErrorActionPreference = 'Continue'
 $script:ok = $true
 
